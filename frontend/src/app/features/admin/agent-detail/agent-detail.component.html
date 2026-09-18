@@ -1,0 +1,82 @@
+<div class="page-header">
+  <div>
+    <h1>{{ isNew() ? 'Add Agent' : 'Manage Agent' }}</h1>
+    <p class="subtitle">{{ isNew() ? 'Create an agent profile for an existing AGENT-role user.' : agent()?.agentCode }}</p>
+  </div>
+  @if (!isNew() && agent()) {
+    <dh-status-badge [status]="agent()!.status"></dh-status-badge>
+  }
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading…"></dh-loading-spinner>
+} @else {
+  <div class="grid grid-cols-2 top-grid">
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="card">
+      @if (errorMessage()) {
+        <div class="alert alert-error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <div class="field">
+        <label for="userId">User ID</label>
+        <input id="userId" type="text" formControlName="userId" [readonly]="!isNew()" placeholder="Existing AGENT-role user's ID" />
+        <span class="hint">Must be the Mongo ID of a user already registered with role AGENT.</span>
+      </div>
+
+      <div class="field">
+        <label for="agentCode">Agent code</label>
+        <input id="agentCode" type="text" formControlName="agentCode" />
+      </div>
+
+      <div class="field">
+        <label for="vehicleType">Vehicle type</label>
+        <select id="vehicleType" formControlName="vehicleType">
+          @for (v of vehicleTypes; track v) { <option [value]="v">{{ v }}</option> }
+        </select>
+      </div>
+
+      @if (isNew()) {
+        <div class="field">
+          <label for="status">Initial status</label>
+          <select id="status" formControlName="status">
+            @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+          </select>
+        </div>
+      }
+
+      <div class="form-actions">
+        <a routerLink="/admin/agents" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : (isNew() ? 'Create Agent' : 'Save Changes') }}
+        </button>
+      </div>
+    </form>
+
+    @if (!isNew() && agent(); as a) {
+      <div class="card">
+        <h3 class="card-title">Performance snapshot</h3>
+        <dl class="kv">
+          <dt>Active deliveries</dt><dd>{{ a.activeDeliveries }}</dd>
+          <dt>Completed deliveries</dt><dd>{{ a.completedDeliveries }}</dd>
+          <dt>On-time deliveries</dt><dd>{{ a.onTimeDeliveries }}</dd>
+          <dt>Rating</dt><dd>{{ a.rating }} / 5</dd>
+          <dt>Reward points</dt><dd>{{ a.rewardPoints }}</dd>
+          <dt>Penalty points</dt><dd>{{ a.penaltyPoints }}</dd>
+        </dl>
+
+        <h3 class="card-title status-title">Change status</h3>
+        <div class="status-buttons">
+          @for (s of statuses; track s) {
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="a.status === s"
+              [class.btn-secondary]="a.status !== s"
+              (click)="changeStatus(s)"
+            >{{ s }}</button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

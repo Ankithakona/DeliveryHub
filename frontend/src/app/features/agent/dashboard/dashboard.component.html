@@ -1,0 +1,47 @@
+<div class="page-header">
+  <div>
+    <h1>Welcome back, {{ auth.currentUser()?.fullName }}</h1>
+    <p class="subtitle">Your currently assigned delivery workload.</p>
+  </div>
+</div>
+
+<div class="card lookup-card">
+  <h3>Open a delivery by ID</h3>
+  <p class="muted">Open an assigned delivery directly by package ID.</p>
+  <div class="lookup-row">
+    <input
+      type="text"
+      placeholder="Package ID"
+      [value]="trackingId()"
+      (input)="trackingId.set($any($event.target).value)"
+      (keyup.enter)="openDelivery()"
+    />
+    <button type="button" class="btn btn-primary" (click)="openDelivery()">Open</button>
+  </div>
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading assigned deliveries…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else if (packages().length === 0) {
+  <dh-empty-state title="No assigned deliveries" description="New deliveries assigned to you will appear here."></dh-empty-state>
+} @else {
+  <div class="table-scroll">
+    <table class="dh-table">
+      <thead><tr><th>Tracking #</th><th>Pickup</th><th>Destination</th><th>Scheduled</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @for (pkg of packages(); track pkg.id) {
+          <tr>
+            <td>{{ pkg.trackingNumber }}</td>
+            <td>{{ pkg.sourceLocation.city }}</td>
+            <td>{{ pkg.destinationLocation.city }}</td>
+            <td>{{ pkg.scheduledDate | date: 'MMM d, y, h:mm a' }}</td>
+            <td><dh-status-badge [status]="pkg.status"></dh-status-badge></td>
+            <td><a [routerLink]="['/agent/deliveries', pkg.id]">Details</a></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

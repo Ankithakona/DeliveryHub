@@ -1,0 +1,239 @@
+@use 'styles/tokens';
+@use 'styles/mixins';
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-background);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+p { margin: 0; }
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  @include mixins.focus-ring;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  &:hover:not(:disabled) { background: var(--color-primary-hover); }
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+  &:hover:not(:disabled) { background: var(--color-background); }
+}
+
+.btn-danger {
+  background: var(--color-error);
+  color: #fff;
+  &:hover:not(:disabled) { opacity: 0.9; }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  &:hover:not(:disabled) { background: var(--color-background); color: var(--color-text); }
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+// Forms
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.field .hint {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.field .error-text {
+  font-size: 12px;
+  color: var(--color-error);
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  &.invalid {
+    border-color: var(--color-error);
+  }
+
+  &:disabled {
+    background: var(--color-background);
+    color: var(--color-muted);
+  }
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Card
+.card {
+  @include mixins.card;
+  padding: var(--space-6);
+}
+
+// Page layout helpers
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  font-size: 22px;
+}
+
+.page-header .subtitle {
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 900px) {
+  .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-cols-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr; }
+}
+
+table.dh-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+
+  th {
+    text-align: left;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background: var(--color-background);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+  @include mixins.card;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

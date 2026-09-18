@@ -1,0 +1,55 @@
+<div class="page-header">
+  <div>
+    <h1>My Deliveries</h1>
+    <p class="subtitle">All delivery requests you've created.</p>
+  </div>
+  <a routerLink="/customer/create-delivery" class="btn btn-primary">+ Create Delivery</a>
+</div>
+
+<div class="filter-bar">
+  <label for="statusFilter">Status</label>
+  <select id="statusFilter" (change)="onStatusChange($any($event.target).value)">
+    <option value="">All statuses</option>
+    @for (status of statuses; track status) {
+      <option [value]="status">{{ status }}</option>
+    }
+  </select>
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading deliveries…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else if (packages().length === 0) {
+  <dh-empty-state title="No deliveries found" description="Try a different filter, or create a new delivery.">
+    <a routerLink="/customer/create-delivery" class="btn btn-primary btn-sm">Create Delivery</a>
+  </dh-empty-state>
+} @else {
+  <div class="table-scroll">
+    <table class="dh-table">
+      <thead>
+        <tr>
+          <th>Tracking #</th>
+          <th>Type</th>
+          <th>Weight</th>
+          <th>Scheduled</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (pkg of packages(); track pkg.id) {
+          <tr>
+            <td>{{ pkg.trackingNumber }}</td>
+            <td>{{ pkg.packageType }}</td>
+            <td>{{ pkg.weight }} kg</td>
+            <td>{{ pkg.scheduledDate | date: 'MMM d, y, h:mm a' }}</td>
+            <td><dh-status-badge [status]="pkg.status"></dh-status-badge></td>
+            <td><a [routerLink]="['/customer/deliveries', pkg.id]">Details</a></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <dh-pagination [page]="page()" [totalPages]="totalPages()" [total]="total()" (pageChange)="onPageChange($event)"></dh-pagination>
+  </div>
+}

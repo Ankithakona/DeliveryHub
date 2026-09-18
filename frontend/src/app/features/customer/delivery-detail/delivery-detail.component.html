@@ -1,0 +1,91 @@
+@if (loading()) {
+  <dh-loading-spinner label="Loading delivery…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else {
+  @if (details(); as d) {
+  <div class="page-header">
+    <div>
+      <h1>{{ d.package.trackingNumber }}</h1>
+      <p class="subtitle">Created {{ d.package.createdAt | date: 'MMM d, y' }}</p>
+    </div>
+    <dh-status-badge [status]="d.package.status"></dh-status-badge>
+  </div>
+
+  <div class="grid grid-cols-2 detail-grid">
+    <div class="card">
+      <h3 class="card-title">Package</h3>
+      <dl class="kv">
+        <dt>Type</dt><dd>{{ d.package.packageType }}</dd>
+        <dt>Description</dt><dd>{{ d.package.description }}</dd>
+        <dt>Weight</dt><dd>{{ d.package.weight }} kg</dd>
+        <dt>Scheduled</dt><dd>{{ d.package.scheduledDate | date: 'MMM d, y, h:mm a' }}</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Route</h3>
+      <div class="route">
+        <div>
+          <span class="route-label">From</span>
+          <p>{{ d.package.sourceLocation.address }}, {{ d.package.sourceLocation.city }}, {{ d.package.sourceLocation.state }} {{ d.package.sourceLocation.postalCode }}</p>
+        </div>
+        <div>
+          <span class="route-label">To</span>
+          <p>{{ d.package.destinationLocation.address }}, {{ d.package.destinationLocation.city }}, {{ d.package.destinationLocation.state }} {{ d.package.destinationLocation.postalCode }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Assignment</h3>
+      @if (d.assignedAgent) {
+        <dl class="kv">
+          <dt>Agent</dt><dd>{{ d.assignedAgent.name }} ({{ d.assignedAgent.agentCode }})</dd>
+          <dt>Agent status</dt><dd><dh-status-badge [status]="d.assignedAgent.status"></dh-status-badge></dd>
+          <dt>Rating</dt><dd>{{ d.assignedAgent.rating }} / 5</dd>
+          @if (d.assignment.distanceKm !== null) { <dt>Distance</dt><dd>{{ d.assignment.distanceKm }} km</dd> }
+          @if (d.assignment.estimatedMinutes !== null) { <dt>ETA</dt><dd>{{ d.assignment.estimatedMinutes }} min</dd> }
+        </dl>
+      } @else {
+        <p class="muted-note">{{ d.assignment.reason || 'No agent is currently assigned to this delivery.' }}</p>
+      }
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Booking</h3>
+      @if (d.booking) {
+        <dl class="kv">
+          <dt>Booking #</dt><dd>{{ d.booking.bookingNumber }}</dd>
+          <dt>Confirmation</dt><dd>{{ d.booking.confirmationCode }}</dd>
+          <dt>Status</dt><dd><dh-status-badge [status]="d.booking.status"></dh-status-badge></dd>
+        </dl>
+      } @else {
+        <p class="muted-note">No booking has been created for this delivery yet.</p>
+      }
+    </div>
+  </div>
+
+  <div class="card timeline-card">
+    <h3 class="card-title">History</h3>
+    @if (d.history.length === 0) {
+      <p class="muted-note">No status history recorded yet.</p>
+    } @else {
+      <ul class="timeline">
+        @for (event of d.history; track event.id) {
+          <li>
+            <div class="timeline-dot"></div>
+            <div class="timeline-body">
+              <div class="timeline-head">
+                <dh-status-badge [status]="event.status"></dh-status-badge>
+                <span class="timeline-time">{{ event.timestamp | date: 'MMM d, y, h:mm a' }}</span>
+              </div>
+              <p>{{ event.remarks }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+  }
+}

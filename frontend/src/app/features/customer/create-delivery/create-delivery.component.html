@@ -1,0 +1,80 @@
+<div class="page-header">
+  <div>
+    <h1>Create Delivery</h1>
+    <p class="subtitle">Enter package and location details. An agent will be assigned automatically.</p>
+  </div>
+</div>
+
+@if (loadingServices()) {
+  <dh-loading-spinner label="Loading services…"></dh-loading-spinner>
+} @else if (servicesError()) {
+  <div class="card"><p class="error-text">{{ servicesError() }}</p></div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="card form-card">
+    @if (errorMessage()) {
+      <div class="alert alert-error" role="alert">{{ errorMessage() }}</div>
+    }
+
+    <h3 class="form-section-title">Package details</h3>
+    <div class="grid grid-cols-2">
+      <div class="field">
+        <label for="packageType">Package type</label>
+        <select id="packageType" formControlName="packageType">
+          @for (type of packageTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="weight">Weight (kg)</label>
+        <input id="weight" type="number" step="0.1" min="0.01" formControlName="weight" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="2"></textarea>
+    </div>
+    <div class="grid grid-cols-2">
+      <div class="field">
+        <label for="serviceId">Service</label>
+        <select id="serviceId" formControlName="serviceId">
+          <option value="" disabled>Select a service</option>
+          @for (service of services(); track service.id) {
+            <option [value]="service.id">{{ service.name }} — {{ service.basePrice | currency }}</option>
+          }
+        </select>
+        @if (services().length === 0) {
+          <span class="hint">No active services are available right now.</span>
+        }
+      </div>
+      <div class="field">
+        <label for="scheduledDate">Scheduled date</label>
+        <input id="scheduledDate" type="datetime-local" formControlName="scheduledDate" />
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Pickup location</h3>
+    <p class="location-hint">Enter city names clearly (e.g. <strong>Hyderabad</strong>, <strong>Vijayawada</strong>, <strong>Tadipatri</strong>). Coordinates are resolved automatically.</p>
+    <div class="grid grid-cols-2">
+      <div class="field"><label for="sourceAddress">Address / Street</label><input id="sourceAddress" type="text" formControlName="sourceAddress" placeholder="e.g. Ashok Nagar, Road No. 5" /></div>
+      <div class="field"><label for="sourceCity">City</label><input id="sourceCity" type="text" formControlName="sourceCity" placeholder="e.g. Hyderabad" /></div>
+      <div class="field"><label for="sourceState">State</label><input id="sourceState" type="text" formControlName="sourceState" placeholder="e.g. Telangana" /></div>
+      <div class="field"><label for="sourcePostalCode">Postal code</label><input id="sourcePostalCode" type="text" formControlName="sourcePostalCode" placeholder="e.g. 500020" /></div>
+    </div>
+
+    <h3 class="form-section-title">Destination</h3>
+    <div class="grid grid-cols-2">
+      <div class="field"><label for="destinationAddress">Address / Street</label><input id="destinationAddress" type="text" formControlName="destinationAddress" placeholder="e.g. Krishnapuram Road" /></div>
+      <div class="field"><label for="destinationCity">City</label><input id="destinationCity" type="text" formControlName="destinationCity" placeholder="e.g. Tadipatri" /></div>
+      <div class="field"><label for="destinationState">State</label><input id="destinationState" type="text" formControlName="destinationState" placeholder="e.g. Andhra Pradesh" /></div>
+      <div class="field"><label for="destinationPostalCode">Postal code</label><input id="destinationPostalCode" type="text" formControlName="destinationPostalCode" placeholder="e.g. 515411" /></div>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/customer/dashboard" class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+        {{ submitting() ? 'Creating…' : 'Create Delivery' }}
+      </button>
+    </div>
+  </form>
+}

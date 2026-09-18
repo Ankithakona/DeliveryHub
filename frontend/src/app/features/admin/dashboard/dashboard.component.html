@@ -1,0 +1,48 @@
+<div class="page-header">
+  <div>
+    <h1>Operations overview</h1>
+    <p class="subtitle">Live counts from the delivery platform.</p>
+  </div>
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading overview…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else {
+  <div class="grid grid-cols-4">
+    <dh-stat-card label="Total users" [value]="totalUsers()"></dh-stat-card>
+    <dh-stat-card label="Agents" [value]="totalAgents()" [hint]="agentsAvailable() + ' available'"></dh-stat-card>
+    <dh-stat-card label="Total packages" [value]="totalPackages()"></dh-stat-card>
+    <dh-stat-card label="Pending assignment" [value]="pendingPackages()"></dh-stat-card>
+  </div>
+
+  <div class="card section">
+    <div class="section-header">
+      <h2>Recent packages</h2>
+      <a routerLink="/admin/packages">View all</a>
+    </div>
+    @if (recentPackages().length === 0) {
+      <dh-empty-state title="No packages yet" description="Delivery requests created by customers will appear here."></dh-empty-state>
+    } @else {
+      <div class="table-scroll">
+        <table class="dh-table">
+          <thead>
+            <tr><th>Tracking #</th><th>Type</th><th>Scheduled</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (pkg of recentPackages(); track pkg.id) {
+              <tr>
+                <td>{{ pkg.trackingNumber }}</td>
+                <td>{{ pkg.packageType }}</td>
+                <td>{{ pkg.scheduledDate | date: 'MMM d, y' }}</td>
+                <td><dh-status-badge [status]="pkg.status"></dh-status-badge></td>
+                <td><a [routerLink]="['/admin/packages', pkg.id]">Details</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,53 @@
+<div class="page-header">
+  <div>
+    <h1>Packages</h1>
+    <p class="subtitle">Every delivery request across all customers.</p>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <label for="statusFilter">Status</label>
+  <select id="statusFilter" (change)="onStatusChange($any($event.target).value)">
+    <option value="">All statuses</option>
+    @for (status of statuses; track status) { <option [value]="status">{{ status }}</option> }
+  </select>
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading packages…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else if (packages().length === 0) {
+  <dh-empty-state title="No packages found" description="Try a different filter."></dh-empty-state>
+} @else {
+  <div class="table-scroll">
+    <table class="dh-table">
+      <thead>
+        <tr><th>Tracking #</th><th>Type</th><th>Scheduled</th><th>Status</th><th>Agent</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (pkg of packages(); track pkg.id) {
+          <tr>
+            <td>{{ pkg.trackingNumber }}</td>
+            <td>{{ pkg.packageType }}</td>
+            <td>{{ pkg.scheduledDate | date: 'MMM d, y' }}</td>
+            <td><dh-status-badge [status]="pkg.status"></dh-status-badge></td>
+            <td>
+              @if (pkg.assignedAgentId) {
+                Assigned
+              } @else if (pkg.status === 'PENDING') {
+                <button type="button" class="btn btn-secondary btn-sm" [disabled]="assigningId() === pkg.id" (click)="retryAssignment(pkg)">
+                  {{ assigningId() === pkg.id ? 'Assigning…' : 'Retry assign' }}
+                </button>
+              } @else {
+                —
+              }
+            </td>
+            <td><a [routerLink]="['/admin/packages', pkg.id]">Details</a></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <dh-pagination [page]="page()" [totalPages]="totalPages()" [total]="total()" (pageChange)="onPageChange($event)"></dh-pagination>
+  </div>
+}

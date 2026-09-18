@@ -1,0 +1,41 @@
+<div class="page-header">
+  <div>
+    <h1>Agents</h1>
+    <p class="subtitle">Delivery agent roster and workload.</p>
+  </div>
+  <a routerLink="/admin/agents/new" class="btn btn-primary">+ Add Agent</a>
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading agents…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else if (agents().length === 0) {
+  <dh-empty-state title="No agents yet" description="Add an agent profile for an existing AGENT-role user account.">
+    <a routerLink="/admin/agents/new" class="btn btn-primary btn-sm">Add Agent</a>
+  </dh-empty-state>
+} @else {
+  <div class="table-scroll">
+    <table class="dh-table">
+      <thead>
+        <tr>
+          <th>Agent</th><th>Code</th><th>Vehicle</th><th>Status</th><th>Active</th><th>Completed</th><th>Rating</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (agent of agents(); track agent.id) {
+          <tr>
+            <td>{{ agent.user.fullName }}</td>
+            <td>{{ agent.agentCode }}</td>
+            <td>{{ agent.vehicleType }}</td>
+            <td><dh-status-badge [status]="agent.status"></dh-status-badge></td>
+            <td>{{ agent.activeDeliveries }}</td>
+            <td>{{ agent.completedDeliveries }}</td>
+            <td>{{ agent.rating }}</td>
+            <td><a [routerLink]="['/admin/agents', agent.id]">Manage</a></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

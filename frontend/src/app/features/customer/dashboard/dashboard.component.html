@@ -1,0 +1,57 @@
+<div class="page-header">
+  <div>
+    <h1>Welcome back, {{ auth.currentUser()?.fullName }}</h1>
+    <p class="subtitle">Here's what's happening with your deliveries.</p>
+  </div>
+  <a routerLink="/customer/create-delivery" class="btn btn-primary">+ Create Delivery</a>
+</div>
+
+@if (loading()) {
+  <dh-loading-spinner label="Loading your dashboard…"></dh-loading-spinner>
+} @else if (error()) {
+  <dh-error-state [message]="error()!" (retry)="load()"></dh-error-state>
+} @else {
+  <div class="grid grid-cols-3">
+    <dh-stat-card label="Active deliveries" [value]="activeCount()"></dh-stat-card>
+    <dh-stat-card label="Awaiting assignment" [value]="pendingCount()"></dh-stat-card>
+    <dh-stat-card label="Delivered" [value]="deliveredCount()"></dh-stat-card>
+  </div>
+
+  <div class="card section">
+    <div class="section-header">
+      <h2>Recent deliveries</h2>
+      <a routerLink="/customer/deliveries">View all</a>
+    </div>
+
+    @if (packages().length === 0) {
+      <dh-empty-state title="No deliveries yet" description="Create your first delivery request to see it here.">
+        <a routerLink="/customer/create-delivery" class="btn btn-primary btn-sm">Create Delivery</a>
+      </dh-empty-state>
+    } @else {
+      <div class="table-scroll">
+        <table class="dh-table">
+          <thead>
+            <tr>
+              <th>Tracking #</th>
+              <th>Type</th>
+              <th>Scheduled</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pkg of packages(); track pkg.id) {
+              <tr>
+                <td>{{ pkg.trackingNumber }}</td>
+                <td>{{ pkg.packageType }}</td>
+                <td>{{ pkg.scheduledDate | date: 'MMM d, y' }}</td>
+                <td><dh-status-badge [status]="pkg.status"></dh-status-badge></td>
+                <td><a [routerLink]="['/customer/deliveries', pkg.id]">Details</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}
